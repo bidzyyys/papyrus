@@ -41,10 +41,9 @@ use blockifier::transaction::objects::{
 };
 use blockifier::transaction::transaction_execution::Transaction as BlockifierTransaction;
 use blockifier::transaction::transactions::ExecutableTransaction;
-use blockifier::versioned_constants::VersionedConstants;
 use cairo_lang_starknet_classes::casm_contract_class::CasmContractClass;
 use cairo_vm::vm::runners::cairo_runner::ExecutionResources;
-use execution_utils::{get_trace_constructor, induced_state_diff};
+use execution_utils::{get_trace_constructor, get_versioned_constants, induced_state_diff};
 use objects::{PriceUnit, TransactionSimulationOutput};
 use papyrus_common::transaction_hash::get_transaction_hash;
 use papyrus_common::TransactionOptions;
@@ -345,7 +344,7 @@ fn create_block_context(
     };
 
     // TODO(yair): set the correct versioned constants for re-execution.
-    let versioned_constants = VersionedConstants::latest_constants().clone();
+    let versioned_constants = get_versioned_constants(storage_reader, block_number)?;
 
     Ok(pre_process_block(
         cached_state,
