@@ -173,8 +173,9 @@ impl EventIterByEventIndex<'_, '_> {
     /// Returns [`StorageError`](crate::StorageError) if there was an error.
     fn next(&mut self) -> StorageResult<Option<EventsTableKeyValue>> {
         let Some((tx_index, tx_output)) = &self.tx_current else { return Ok(None) };
-        let Some(address) =
-            tx_output.events_contract_addresses_as_ref().get(self.event_index_in_tx_current.0)
+        let Some(address) = tx_output
+            .events_contract_addresses_as_ref()
+            .get(self.event_index_in_tx_current.0 as usize)
         else {
             return Ok(None);
         };
@@ -199,7 +200,8 @@ impl EventIterByEventIndex<'_, '_> {
                 break;
             }
             // Checks if there's an event in the current event index.
-            if tx_output.events_contract_addresses_as_ref().len() > self.event_index_in_tx_current.0
+            if tx_output.events_contract_addresses_as_ref().len()
+                > (self.event_index_in_tx_current.0 as usize)
             {
                 break;
             }

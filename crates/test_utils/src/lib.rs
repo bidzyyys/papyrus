@@ -418,8 +418,8 @@ auto_impl_get_test_instance! {
         pub l1_da_mode: L1DataAvailabilityMode,
         pub transaction_commitment: TransactionCommitment,
         pub event_commitment: EventCommitment,
-        pub n_transactions: usize,
-        pub n_events: usize,
+        pub n_transactions: u64,
+        pub n_events: u64,
         pub starknet_version: StarknetVersion,
     }
     pub struct BlockNumber(pub u64);
@@ -448,13 +448,13 @@ auto_impl_get_test_instance! {
     pub struct ContractAddressSalt(pub StarkHash);
     pub struct ContractClass {
         pub sierra_program: Vec<StarkFelt>,
-        pub entry_points_by_type: HashMap<EntryPointType, Vec<EntryPoint>>,
+        pub entry_points_by_type: IndexMap<EntryPointType, Vec<EntryPoint>>,
         pub abi: String,
     }
     pub struct DeprecatedContractClass {
         pub abi: Option<Vec<ContractClassAbiEntry>>,
         pub program: Program,
-        pub entry_points_by_type: HashMap<DeprecatedEntryPointType, Vec<DeprecatedEntryPoint>>,
+        pub entry_points_by_type: IndexMap<DeprecatedEntryPointType, Vec<DeprecatedEntryPoint>>,
     }
     pub enum ContractClassAbiEntry {
         Event(EventAbiEntry) = 0,
@@ -549,8 +549,8 @@ auto_impl_get_test_instance! {
         pub content: EventContent,
     }
     pub struct EventCommitment(pub StarkHash);
-    pub struct FunctionIndex(pub usize);
-    pub struct EntryPointOffset(pub usize);
+    pub struct FunctionIndex(pub u64);
+    pub struct EntryPointOffset(pub u64);
     pub struct EntryPointSelector(pub StarkHash);
     pub enum EntryPointType {
         Constructor = 0,
@@ -567,7 +567,7 @@ auto_impl_get_test_instance! {
         pub data: EventData,
     }
     pub struct EventData(pub Vec<StarkFelt>);
-    pub struct EventIndexInTransactionOutput(pub usize);
+    pub struct EventIndexInTransactionOutput(pub u64);
     pub struct EventKey(pub StarkFelt);
     pub struct Fee(pub u128);
     pub struct FunctionAbiEntry {
@@ -677,7 +677,7 @@ auto_impl_get_test_instance! {
     }
     pub struct StructMember {
         pub param: TypedParameter,
-        pub offset: usize,
+        pub offset: u64,
     }
     pub struct ThinStateDiff {
         pub deployed_contracts: IndexMap<ContractAddress, ClassHash>,
@@ -700,7 +700,7 @@ auto_impl_get_test_instance! {
         Reverted = 1,
     }
     pub struct TransactionHash(pub StarkHash);
-    pub struct TransactionOffsetInBlock(pub usize);
+    pub struct TransactionOffsetInBlock(pub u64);
     pub struct TransactionSignature(pub Vec<StarkFelt>);
     pub struct TransactionVersion(pub StarkFelt);
     pub struct TypedParameter {
@@ -726,7 +726,7 @@ auto_impl_get_test_instance! {
 
     pub struct CasmContractEntryPoint {
         pub selector: BigUint,
-        pub offset: usize,
+        pub offset: u64,
         pub builtins: Vec<String>,
     }
 
@@ -734,7 +734,7 @@ auto_impl_get_test_instance! {
         pub value: BigUint,
     }
     pub enum NestedIntList {
-        Leaf(usize) = 0,
+        Leaf(u64) = 0,
         Node(Vec<NestedIntList>) = 1,
     }
 

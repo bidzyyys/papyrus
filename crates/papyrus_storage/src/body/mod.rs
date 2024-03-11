@@ -201,7 +201,8 @@ impl<'env, Mode: TransactionKind> BodyStorageReader for StorageTxn<'env, Mode> {
 
         let mut res = Vec::new();
         for (index, from_address) in tx_output.events_contract_addresses().into_iter().enumerate() {
-            let event_index = EventIndex(transaction_index, EventIndexInTransactionOutput(index));
+            let event_index =
+                EventIndex(transaction_index, EventIndexInTransactionOutput(index as u64));
             if let Some(content) = events_table.get(&self.txn, &(from_address, event_index))? {
                 res.push(Event { from_address, content });
             } else {
@@ -280,7 +281,7 @@ impl<'env, Mode: TransactionKind> BodyStorageReader for StorageTxn<'env, Mode> {
             return Ok(Some(0));
         }
 
-        Ok(Some(last_tx_index.0 + 1))
+        Ok(Some((last_tx_index.0 + 1) as usize))
     }
 }
 
@@ -388,7 +389,8 @@ impl<'env> BodyStorageWriter for StorageTxn<'env, RW> {
             // Delete the transactions data.
             let mut events = vec![];
             for (offset, tx_output) in transaction_outputs.iter().enumerate() {
-                let tx_index = TransactionIndex(block_number, TransactionOffsetInBlock(offset));
+                let tx_index =
+                    TransactionIndex(block_number, TransactionOffsetInBlock(offset as u64));
                 let tx_hash = self.get_transaction_hash_by_idx(&tx_index)?.unwrap_or_else(|| {
                     panic!("Missing transaction hash for transaction index {tx_index:?}.")
                 });
@@ -396,8 +398,10 @@ impl<'env> BodyStorageWriter for StorageTxn<'env, RW> {
                 for (index, from_address) in
                     tx_output.events_contract_addresses_as_ref().iter().enumerate()
                 {
-                    let key =
-                        (*from_address, EventIndex(tx_index, EventIndexInTransactionOutput(index)));
+                    let key = (
+                        *from_address,
+                        EventIndex(tx_index, EventIndexInTransactionOutput(index as u64)),
+                    );
                     tx_events.push(events_table.get(&self.txn, &key)?.unwrap_or_else(|| {
                         panic!("Missing events for transaction output {tx_index:?}.")
                     }));
@@ -428,7 +432,7 @@ fn write_transactions<'env>(
     for (index, (tx, tx_hash)) in
         block_body.transactions.iter().zip(block_body.transaction_hashes.iter()).enumerate()
     {
-        let tx_offset_in_block = TransactionOffsetInBlock(index);
+        let tx_offset_in_block = TransactionOffsetInBlock(index as u64);
         let transaction_index = TransactionIndex(block_number, tx_offset_in_block);
         update_tx_hash_mapping(
             txn,
@@ -450,7 +454,8 @@ fn write_transaction_outputs<'env>(
     block_number: BlockNumber,
 ) -> StorageResult<()> {
     for (index, tx_output) in block_body.transaction_outputs.into_iter().enumerate() {
-        let transaction_index = TransactionIndex(block_number, TransactionOffsetInBlock(index));
+        let transaction_index =
+            TransactionIndex(block_number, TransactionOffsetInBlock(index as u64));
 
         write_events(&tx_output, txn, events_table, transaction_index)?;
         transaction_outputs_table.insert(
@@ -469,7 +474,8 @@ fn write_events<'env>(
     transaction_index: TransactionIndex,
 ) -> StorageResult<()> {
     for (index, event) in tx_output.events().iter().enumerate() {
-        let event_index = EventIndex(transaction_index, EventIndexInTransactionOutput(index));
+        let event_index =
+            EventIndex(transaction_index, EventIndexInTransactionOutput(index as u64));
         events_table.insert(txn, &(event.from_address, event_index), &event.content)?;
     }
     Ok(())

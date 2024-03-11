@@ -75,8 +75,8 @@ pub(crate) struct StorageBlockHeader {
     pub l1_da_mode: L1DataAvailabilityMode,
     pub transaction_commitment: TransactionCommitment,
     pub event_commitment: EventCommitment,
-    pub n_transactions: usize,
-    pub n_events: usize,
+    pub n_transactions: u64,
+    pub n_events: u64,
 }
 
 type BlockHashToNumberTable<'env> =

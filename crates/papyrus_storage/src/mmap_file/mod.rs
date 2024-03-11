@@ -183,6 +183,7 @@ pub(crate) fn open_file<V: ValueSerde>(
         should_flush: false,
         _value_type: PhantomData {},
     };
+
     let shared_mmap_file = Arc::new(Mutex::new(mmap_file));
 
     let mut write_file_handler: FileHandler<V, RW> = FileHandler {

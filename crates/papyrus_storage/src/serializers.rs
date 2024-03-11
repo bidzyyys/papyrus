@@ -155,8 +155,8 @@ auto_storage_serde! {
         pub l1_da_mode: L1DataAvailabilityMode,
         pub transaction_commitment: TransactionCommitment,
         pub event_commitment: EventCommitment,
-        pub n_transactions: usize,
-        pub n_events: usize,
+        pub n_transactions: u64,
+        pub n_events: u64,
     }
     pub struct BlockNumber(pub u64);
     pub struct BlockSignature(pub Signature);
@@ -233,8 +233,8 @@ auto_storage_serde! {
         pub function_idx: FunctionIndex,
         pub selector: EntryPointSelector,
     }
-    pub struct FunctionIndex(pub usize);
-    pub struct EntryPointOffset(pub usize);
+    pub struct FunctionIndex(pub u64);
+    pub struct EntryPointOffset(pub u64);
     pub struct EntryPointSelector(pub StarkHash);
     pub enum EntryPointType {
         Constructor = 0,
@@ -255,7 +255,7 @@ auto_storage_serde! {
     pub struct EventCommitment(pub StarkHash);
     pub struct EventData(pub Vec<StarkFelt>);
     struct EventIndex(pub TransactionIndex, pub EventIndexInTransactionOutput);
-    pub struct EventIndexInTransactionOutput(pub usize);
+    pub struct EventIndexInTransactionOutput(pub u64);
     pub struct EventKey(pub StarkFelt);
     pub struct Fee(pub u128);
     pub struct FunctionAbiEntry {
@@ -310,7 +310,7 @@ auto_storage_serde! {
         pub payload: L1ToL2Payload,
     }
     pub enum NestedIntList {
-        Leaf(usize) = 0,
+        Leaf(u64) = 0,
         Node(Vec<NestedIntList>) = 1,
     }
     pub struct Nonce(pub StarkFelt);
@@ -349,12 +349,12 @@ auto_storage_serde! {
     }
     pub struct StructAbiEntry {
         pub name: String,
-        pub size: usize,
+        pub size: u64,
         pub members: Vec<StructMember>,
     }
     pub struct StructMember {
         pub param: TypedParameter,
-        pub offset: usize,
+        pub offset: u64,
     }
     pub struct StarknetVersion(pub String);
     pub struct Tip(pub u64);
@@ -420,7 +420,7 @@ auto_storage_serde! {
     }
     pub struct TransactionHash(pub StarkHash);
     struct TransactionIndex(pub BlockNumber, pub TransactionOffsetInBlock);
-    pub struct TransactionOffsetInBlock(pub usize);
+    pub struct TransactionOffsetInBlock(pub u64);
     pub struct TransactionSignature(pub Vec<StarkFelt>);
     pub struct TransactionVersion(pub StarkFelt);
     pub struct Version(pub u32);
@@ -433,7 +433,7 @@ auto_storage_serde! {
 
     pub struct CasmContractEntryPoint {
         pub selector: BigUint,
-        pub offset: usize,
+        pub offset: u64,
         pub builtins: Vec<String>,
     }
 
@@ -443,7 +443,7 @@ auto_storage_serde! {
 
     pub struct ExecutionResources {
         pub steps: u64,
-        pub builtin_instance_counter: HashMap<Builtin, u64>,
+        pub builtin_instance_counter: IndexMap<Builtin, u64>,
         pub memory_holes: u64,
     }
     pub enum Builtin {
@@ -486,7 +486,7 @@ macro_rules! auto_storage_serde {
                 self.0.serialize_into(res)
             }
             fn deserialize_from(bytes: &mut impl std::io::Read) -> Option<Self> {
-                Some(Self (<$ty>::deserialize_from(bytes)?))
+                Some(Self (<$ty>::deserialize_from(bytes)?.try_into().unwrap()))
             }
         }
         #[cfg(test)]
@@ -520,7 +520,7 @@ macro_rules! auto_storage_serde {
             fn deserialize_from(bytes: &mut impl std::io::Read) -> Option<Self> {
                 Some(Self {
                     $(
-                        $field: <$ty>::deserialize_from(bytes)?,
+                        $field: <$ty>::deserialize_from(bytes)?.try_into().unwrap(),
                     )*
                 })
             }
@@ -899,7 +899,7 @@ impl StorageSerde for ContractClass {
             sierra_program: Vec::<StarkFelt>::deserialize_from(
                 &mut decompress_from_reader(bytes)?.as_slice(),
             )?,
-            entry_points_by_type: HashMap::<EntryPointType, Vec<EntryPoint>>::deserialize_from(
+            entry_points_by_type: IndexMap::<EntryPointType, Vec<EntryPoint>>::deserialize_from(
                 bytes,
             )?,
             abi: String::deserialize_from(&mut decompress_from_reader(bytes)?.as_slice())?,
@@ -929,7 +929,7 @@ impl StorageSerde for DeprecatedContractClass {
             abi: Option::<Vec<ContractClassAbiEntry>>::deserialize_from(data)?,
             program: Program::deserialize_from(data)?,
             entry_points_by_type:
-                HashMap::<DeprecatedEntryPointType, Vec<DeprecatedEntryPoint>>::deserialize_from(
+                IndexMap::<DeprecatedEntryPointType, Vec<DeprecatedEntryPoint>>::deserialize_from(
                     bytes,
                 )?,
         })

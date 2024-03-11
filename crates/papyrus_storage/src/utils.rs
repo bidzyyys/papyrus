@@ -3,10 +3,10 @@
 #[path = "utils_test.rs"]
 mod utils_test;
 
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 
+use indexmap::IndexMap;
 use metrics::{absolute_counter, gauge};
 use serde::Serialize;
 use starknet_api::block::BlockNumber;
@@ -26,7 +26,7 @@ struct DumpDeclaredClass {
     class_hash: ClassHash,
     compiled_class_hash: CompiledClassHash,
     sierra_program: Vec<StarkFelt>,
-    entry_points_by_type: HashMap<EntryPointType, Vec<EntryPoint>>,
+    entry_points_by_type: IndexMap<EntryPointType, Vec<EntryPoint>>,
 }
 
 /// Dumps the declared_classes at a given block range from the storage to a file.
